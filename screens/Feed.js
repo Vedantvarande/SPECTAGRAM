@@ -13,6 +13,7 @@ import PostCard from './PostCard';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 import { FlatList } from 'react-native-gesture-handler';
+import firebase from "firebase";
 
 let customFonts = {
   'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
@@ -25,6 +26,7 @@ export default class Feed extends Component {
     super(props);
     this.state = {
       fontsLoaded: false,
+      light_theme: true
     };
   }
 
@@ -35,7 +37,18 @@ export default class Feed extends Component {
 
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
+  fetchUser = () => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", snapshot => {
+        theme = snapshot.val().current_theme;
+        this.setState({ light_theme: theme === "light" });
+      });
+  };
 
   renderItem = ({ item: post }) => {
     return <PostCard post={post} navigation={this.props.navigation} />;
@@ -48,7 +61,7 @@ export default class Feed extends Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight : styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -57,7 +70,7 @@ export default class Feed extends Component {
                 style={styles.iconImage}></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>SPECTAGRAM</Text>
+              <Text style={this.state.light_them ? styles.appTitleTextLight: styles.appTitleText}>SPECTAGRAM</Text>
             </View>
           </View>
           <View style={styles.cardContainer}>
@@ -77,6 +90,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
   droidSafeArea: {
     marginTop:
@@ -102,6 +119,11 @@ const styles = StyleSheet.create({
   },
   appTitleText: {
     color: 'white',
+    fontSize: RFValue(28),
+    fontFamily: 'Bubblegum-Sans',
+  },
+  appTitleTextLight: {
+    color: '#000',
     fontSize: RFValue(28),
     fontFamily: 'Bubblegum-Sans',
   },
