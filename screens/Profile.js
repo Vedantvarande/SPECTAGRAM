@@ -78,7 +78,7 @@ export default class Profile extends Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight : styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -88,7 +88,7 @@ export default class Profile extends Component {
               ></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>Storytelling App</Text>
+              <Text style={this.state.light_theme ? styles.appTitleTextLight : styles.appTitleText}>Storytelling App</Text>
             </View>
           </View>
           <View style={styles.screenContainer}>
@@ -97,10 +97,10 @@ export default class Profile extends Component {
                 source={{ uri: this.state.profile_image }}
                 style={styles.profileImage}
               ></Image>
-              <Text style={styles.nameText}>{this.state.name}</Text>
+              <Text style={this.state.light_theme ? styles.nameTextLight : styles.nameText}>{this.state.name}</Text>
             </View>
             <View style={styles.themeContainer}>
-              <Text style={styles.themeText}>Dark Theme</Text>
+              <Text style={this.state.light_theme ? styles.themeTextLight : styles.themeText}>Dark Theme</Text>
               <Switch
                 style={{
                   transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }]
@@ -125,6 +125,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000000"
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: "#fff"
   },
   droidSafeArea: {
     marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
@@ -152,6 +156,11 @@ const styles = StyleSheet.create({
     fontSize: RFValue(28),
     fontFamily: "Bubblegum-Sans"
   },
+  appTitleTextLight: {
+    color: "#000",
+    fontSize: RFValue(28),
+    fontFamily: "Bubblegum-Sans"
+  },
   screenContainer: {
     flex: 0.85
   },
@@ -171,6 +180,12 @@ const styles = StyleSheet.create({
     fontFamily: "Bubblegum-Sans",
     marginTop: RFValue(10)
   },
+  nameTextLight: {
+    color: "black",
+    fontSize: RFValue(40),
+    fontFamily: "Bubblegum-Sans",
+    marginTop: RFValue(10)
+  },
   themeContainer: {
     flex: 0.2,
     flexDirection: "row",
@@ -179,6 +194,12 @@ const styles = StyleSheet.create({
   },
   themeText: {
     color: "white",
+    fontSize: RFValue(30),
+    fontFamily: "Bubblegum-Sans",
+    marginRight: RFValue(15)
+  },
+  themeTextLight: {
+    color: "#000",
     fontSize: RFValue(30),
     fontFamily: "Bubblegum-Sans",
     marginRight: RFValue(15)
