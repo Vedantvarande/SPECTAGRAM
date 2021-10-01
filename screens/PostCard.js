@@ -13,6 +13,8 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
+import firebase from 'firebase';
+
 import { RFValue } from 'react-native-responsive-fontsize';
 let customFonts = {
   'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
@@ -23,6 +25,7 @@ export default class PostCard extends Component {
     super(props);
     this.state = {
       fontsLoaded: false,
+      light_theme: true
     };
   }
 
@@ -33,7 +36,18 @@ export default class PostCard extends Component {
 
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
+  fetchUser = () => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", snapshot => {
+        theme = snapshot.val().current_theme;
+        this.setState({ light_theme: theme === "light" });
+      });
+  };
 
   render() {
     if (!this.state.fontsLoaded) {
@@ -47,7 +61,7 @@ export default class PostCard extends Component {
               post: this.props.post,
             })
           }>
-          <View style={styles.cardContainer}>
+          <View style={this.state.light_theme ? styles.cardContainerLight: styles.cardContainer}>
             <Image
               source={require('../assets/image_6.jpg')}
               style={styles.postImage}></Image>
@@ -79,6 +93,11 @@ const styles = StyleSheet.create({
   cardContainer: {
     margin: RFValue(13),
     backgroundColor: '#2A2A2A',
+    borderRadius: RFValue(20),
+  },
+  cardContainerLight: {
+    margin: RFValue(13),
+    backgroundColor: '#000',
     borderRadius: RFValue(20),
   },
   postImage: {
