@@ -15,6 +15,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
+import firebase from "firebase";
 
 let customFonts = {
   'Bubblegum-Sans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
@@ -27,6 +28,7 @@ export default class CreateStory extends Component {
       fontsLoaded: false,
       previewImage: 'image_1',
       dropdownHeight: 40,
+      light_theme: true
     };
   }
 
@@ -37,7 +39,18 @@ export default class CreateStory extends Component {
 
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
+  fetchUser = () => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", snapshot => {
+        theme = snapshot.val().current_theme;
+        this.setState({ light_theme: theme === "light" });
+      });
+  };
 
   render() {
     if (!this.state.fontsLoaded) {
@@ -51,7 +64,7 @@ export default class CreateStory extends Component {
         image_5: require('../assets/image_5.jpg'),
       };
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight :styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -60,7 +73,9 @@ export default class CreateStory extends Component {
                 style={styles.iconImage}></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>New Story</Text>
+              <Text style={this.state.light_theme
+                    ? styles.appTitleTextLight
+                    :styles.appTitleText}>New Post</Text>
             </View>
           </View>
           <View style={styles.fieldsContainer}>
@@ -93,14 +108,14 @@ export default class CreateStory extends Component {
                   itemStyle={{
                     justifyContent: 'flex-start',
                   }}
-                  dropDownStyle={{ backgroundColor: '#2a2a2a' }}
+                  dropDownStyle={{ backgroundColor:  this.state.light_theme ? "#fff" : "#2f345d" }}
                   labelStyle={{
-                    color: 'white',
-                    fontFamily: 'Bubblegum-Sans',
+                    color:  this.state.light_theme? styles.dropdownLabelLight:styles.dropdownLabel,
+                    fontFamily: "Bubblegum-Sans"
                   }}
                   arrowStyle={{
-                    color: 'white',
-                    fontFamily: 'Bubblegum-Sans',
+                    color: this.state.light_theme ? styles.dropdownLabelLight: styles.dropdownLabel,
+                    fontFamily: "Bubblegum-Sans"
                   }}
                   onChangeItem={(item) =>
                     this.setState({
@@ -111,23 +126,19 @@ export default class CreateStory extends Component {
               </View>
 
               <TextInput
-                style={styles.inputFont}
+                style={this.state.light_theme ? styles.inputFontLight:styles.inputFont}
                 onChangeText={(title) => this.setState({ title })}
                 placeholder={'Title'}
-                placeholderTextColor="white"
+                placeholderTextColor={this.state.light_theme ? "black" : "white"}
               />
 
               <TextInput
-                style={[
-                  styles.inputFont,
-                  styles.inputFontExtra,
-                  styles.inputTextBig,
-                ]}
+                style={this.state.light_theme ? styles.inputFontLight:styles.inputFont}
                 onChangeText={(description) => this.setState({ description })}
                 placeholder={'Description'}
                 multiline={true}
                 numberOfLines={4}
-                placeholderTextColor="white"
+                placeholderTextColor={this.state.light_theme ? "black" : "white"}
               />
             </ScrollView>
           </View>
@@ -142,6 +153,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#373737',
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
   droidSafeArea: {
     marginTop:
@@ -170,6 +185,11 @@ const styles = StyleSheet.create({
     fontSize: RFValue(28),
     fontFamily: 'Bubblegum-Sans',
   },
+  appTitleTextLight: {
+    color: 'black',
+    fontSize: RFValue(28),
+    fontFamily: 'Bubblegum-Sans',
+  },
   fieldsContainer: {
     flex: 0.85,
   },
@@ -190,11 +210,28 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Bubblegum-Sans',
   },
+  inputFontLight: {
+    height: RFValue(40),
+    borderColor: '#000',
+    borderWidth: RFValue(1),
+    borderRadius: RFValue(10),
+    paddingLeft: RFValue(10),
+    color: 'white',
+    fontFamily: 'Bubblegum-Sans',
+  },
   inputFontExtra: {
     marginTop: RFValue(15),
   },
   inputTextBig: {
     textAlignVertical: 'top',
     padding: RFValue(5),
+  },
+  dropdownLabel: {
+    color: "white",
+    fontFamily: "Bubblegum-Sans"
+  },
+  dropdownLabelLight: {
+    color: "black",
+    fontFamily: "Bubblegum-Sans"
   },
 });
