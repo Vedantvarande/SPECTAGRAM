@@ -13,7 +13,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
+import firebase from 'firebase';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 
@@ -26,6 +26,7 @@ export default class PostScreen extends Component {
     super(props);
     this.state = {
       fontsLoaded: false,
+      light_theme: true
     };
   }
 
@@ -36,7 +37,18 @@ export default class PostScreen extends Component {
 
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
+  fetchUser = () => {
+    let theme;
+    firebase
+      .database()
+      .ref("/users/" + firebase.auth().currentUser.uid)
+      .on("value", snapshot => {
+        theme = snapshot.val().current_theme;
+        this.setState({ light_theme: theme === "light" });
+      });
+  };
 
   render() {
     if (!this.props.route.params) {
@@ -45,7 +57,7 @@ export default class PostScreen extends Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight : styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -54,10 +66,10 @@ export default class PostScreen extends Component {
                 style={styles.iconImage}></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>Spectagram</Text>
+              <Text style={this.state.light_them ? styles.appTitleTextLight: styles.appTitleText}>Spectagram</Text>
             </View>
           </View>
-          <View style={styles.storyContainer}>
+          <View style={this.state.light_them ? styles.storyCardLight: styles.storyCard}>
             <ScrollView style={styles.storyCard}>
               <Image
                 source={require('../assets/image_6.jpg')}
@@ -65,16 +77,16 @@ export default class PostScreen extends Component {
 
               <View style={styles.dataContainer}>
                 <View style={styles.titleTextContainer}>
-                  <Text style={styles.storyTitleText}>
+                  <Text style={this.state.light_them ? styles.storyTitleTextLight: styles.storyTitleText}>
                     {this.props.route.params.post.title}
                   </Text>
-                  <Text style={styles.userText}>
+                  <Text style={this.state.light_them ? styles.userTextLight: styles.userText}>
                     {this.props.route.params.post.user}
                   </Text>
                 </View>
               </View>
               <View style={styles.storyTextContainer}>
-                <Text style={styles.storyText}>
+                <Text style={this.state.light_them ? styles.storyTextLight: styles.storyText}>
                   {this.props.route.params.post.description}
                 </Text>
               </View>
@@ -96,6 +108,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+  },
+  containerLight: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
   droidSafeArea: {
     marginTop:
