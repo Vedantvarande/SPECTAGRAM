@@ -10,6 +10,8 @@ import {
   ScrollView,
   TextInput,
   Dimensions,
+  Button,
+  Alert
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -28,7 +30,7 @@ export default class CreateStory extends Component {
       fontsLoaded: false,
       previewImage: 'image_1',
       dropdownHeight: 40,
-      light_theme: true
+      light_theme: true,
     };
   }
 
@@ -41,6 +43,42 @@ export default class CreateStory extends Component {
     this._loadFontsAsync();
     this.fetchUser();
   }
+  async addStory() {
+    if (
+      this.state.title &&
+      this.state.description
+    ) {
+      let storyData = {
+        preview_image: this.state.previewImage,
+        title: this.state.title,
+        description: this.state.description,
+        user: firebase.auth().currentUser.displayName,
+        created_on: new Date(),
+        user_uid: firebase.auth().currentUser.uid,
+        likes: 0
+      };
+      await firebase
+        .database()
+        .ref(
+          "/posts/" +
+            Math.random()
+              .toString(36)
+              .slice(2)
+        )
+        .set(storyData)
+        .then(function(snapshot) {});
+      
+      this.props.navigation.navigate("Feed");
+    } else {
+      Alert.alert(
+        "Error",
+        "All fields are required!",
+        [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+    }
+  }
+
   fetchUser = () => {
     let theme;
     firebase
@@ -140,6 +178,13 @@ export default class CreateStory extends Component {
                 numberOfLines={4}
                 placeholderTextColor={this.state.light_theme ? "black" : "white"}
               />
+              <View style={styles.submitButton}>
+                <Button
+                  onPress={() => this.addStory()}
+                  title="Submit"
+                  color="#841584"
+                />
+              </View>
             </ScrollView>
           </View>
           <View style={{ flex: 0.08 }} />
@@ -234,4 +279,9 @@ const styles = StyleSheet.create({
     color: "black",
     fontFamily: "Bubblegum-Sans"
   },
+  submitButton: {
+    marginTop: RFValue(20),
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
