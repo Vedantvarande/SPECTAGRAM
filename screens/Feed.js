@@ -26,7 +26,8 @@ export default class Feed extends Component {
     super(props);
     this.state = {
       fontsLoaded: false,
-      light_theme: true
+      light_theme: true,
+      stories: []
     };
   }
 
@@ -39,6 +40,31 @@ export default class Feed extends Component {
     this._loadFontsAsync();
     this.fetchUser();
   }
+  fetchStories = () => {
+    firebase
+      .database()
+      .ref("/posts/")
+      .on(
+        "value",
+        snapshot => {
+          let stories = [];
+          if (snapshot.val()) {
+            Object.keys(snapshot.val()).forEach(function (key) {
+              stories.push({
+                key: key,
+                value: snapshot.val()[key]
+              });
+            });
+          }
+          this.setState({ stories: stories });
+          this.props.setUpdateToFalse();
+        },
+        function (errorObject) {
+          console.log("The read failed: " + errorObject.code);
+        }
+      );
+  };
+
   fetchUser = () => {
     let theme;
     firebase
@@ -73,13 +99,27 @@ export default class Feed extends Component {
               <Text style={this.state.light_them ? styles.appTitleTextLight: styles.appTitleText}>SPECTAGRAM</Text>
             </View>
           </View>
-          <View style={styles.cardContainer}>
-            <FlatList
-              keyExtractor={this.keyExtractor}
-              data={posts}
-              renderItem={this.renderItem}
-            />
-          </View>
+          {!this.state.stories[0] ? (
+            <View style={styles.noPosts}>
+              <Text
+                style={
+                  this.state.light_theme
+                    ? styles.noPostTextLight
+                    : styles.noPostText
+                }
+              >
+                No Posts Available
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.cardContainer}>
+              <FlatList
+                keyExtractor={this.keyExtractor}
+                data={this.state.stories}
+                renderItem={this.renderItem}
+              />
+            </View>
+          )}
         </View>
       );
     }
@@ -130,4 +170,19 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 0.93,
   },
+  noPosts: {
+    flex: 0.85,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  noPostTextLight: {
+    color: "black",
+    fontSize: RFValue(40),
+    fontFamily: "Bubblegum-Sans"
+  },
+  noPostText: {
+    color: "white",
+    fontSize: RFValue(40),
+    fontFamily: "Bubblegum-Sans"
+  }
 });
