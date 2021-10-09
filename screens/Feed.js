@@ -39,6 +39,7 @@ export default class Feed extends Component {
   componentDidMount() {
     this._loadFontsAsync();
     this.fetchUser();
+    this.fetchStories();
   }
   fetchStories = () => {
     firebase
