@@ -264,13 +264,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Bubblegum-Sans',
   },
-  inputFontExtra: {
-    marginTop: RFValue(15),
-  },
-  inputTextBig: {
-    textAlignVertical: 'top',
-    padding: RFValue(5),
-  },
   dropdownLabel: {
     color: "white",
     fontFamily: "Bubblegum-Sans"
