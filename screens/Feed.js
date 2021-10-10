@@ -19,7 +19,7 @@ let customFonts = {
   'Nunito-SemiBold': require('../assets/fonts/Nunito-SemiBold.ttf'),
 };
 
-let posts = require('./posts-items.json');
+let posts = require('./post-items.json');
 
 export default class Feed extends Component {
   constructor(props) {
